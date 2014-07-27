@@ -138,11 +138,11 @@
        if you want just the index.theme file but no icons, mostly
        needed for the "hicolor" base theme.
   -->
-  <icon-theme icons="all">
+  <icon-theme icons="auto">
     gnome
   </icon-theme>
 
-  <icon-theme icons="all">
+  <icon-theme icons="auto">
     hicolor
   </icon-theme>
 

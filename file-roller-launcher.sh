@@ -36,6 +36,7 @@ export GTK_IM_MODULE_FILE="$bundle_etc/gtk-3.0/gtk.immodules"
 export GDK_PIXBUF_MODULE_FILE="$bundle_etc/gtk-3.0/gdk-pixbuf.loaders"
 export PANGO_LIBDIR="$bundle_lib"
 export PANGO_SYSCONFDIR="$bundle_etc"
+export PATH="${bundle_bin}:$PATH"
 
 
 ### the .mo file's name
