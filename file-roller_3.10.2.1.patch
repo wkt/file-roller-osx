@@ -1,0 +1,164 @@
+diff --git a/configure.ac b/configure.ac
+index 1e05aa3..74f3920 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -134,6 +134,24 @@ fi
+ AC_SUBST(JSON_GLIB_CFLAGS)
+ AC_SUBST(JSON_GLIB_LIBS)
+ 
++
++dnl ******************************
++dnl
++dnl gtk-mac-integration
++dnl
++PKG_CHECK_MODULES(MAC_INTEGRATION,
++		  [gtk-mac-integration],
++		  [enable_mac_integration=yes],
++		  [enable_mac_integration=no])
++
++if test x$enable_mac_integration = xyes ; then
++	AC_DEFINE(HAVE_MAC_INTEGRATION, 1, [Define to 1 if gtk-mac-integration support is included])
++fi
++
++AC_SUBST(MAC_INTEGRATION_CFLAGS)
++AC_SUBST(MAC_INTEGRATION_LIBS)
++
++
+ AM_CONDITIONAL(ENABLE_JSON_GLIB, test x"$enable_json_glib" != x"no")
+ 
+ dnl ******************************
+@@ -247,7 +265,7 @@ dnl ===========================================================================
+ dnl
+ dnl SM Client
+ dnl
+-GDK_TARGET="$($PKG_CONFIG --variable target gdk-2.0)"
++GDK_TARGET="$($PKG_CONFIG --variable target gdk-3.0)"
+ 
+ AC_MSG_CHECKING([which smclient backend to use])
+ AC_ARG_WITH([smclient],
+@@ -365,5 +383,5 @@ Configuration:
+ 	Use libmagic            : ${enable_magic}
+ 	JSON support            : ${enable_json_glib}
+ 	Notifications support   : ${enable_notification}
+-	Use libarchive          : ${enable_libarchive}
++	Use libarchive          : ${enable_libarchive},${LIBARCHIVE_LIBS}
+ "
+diff --git a/copy-n-paste/Makefile.am b/copy-n-paste/Makefile.am
+index 59789f4..efd4a54 100644
+--- a/copy-n-paste/Makefile.am
++++ b/copy-n-paste/Makefile.am
+@@ -4,7 +4,7 @@ AM_CPPFLAGS = $(DISABLE_DEPRECATED) \
+ noinst_LTLIBRARIES = libeggsmclient.la
+ 
+ libeggsmclient_la_LIBADD = $(GTK_LIBS)
+-libeggsmclient_la_CFLAGS = $(GTK_CFLAGS)
++libeggsmclient_la_CFLAGS = $(GTK_CFLAGS) $(MAC_INTEGRATION_CFLAGS)
+ 
+ libeggsmclient_la_SOURCES = 			\
+ 	eggdesktopfile.h 			\
+diff --git a/copy-n-paste/eggdesktopfile.c b/copy-n-paste/eggdesktopfile.c
+index e6692e1..0c4fff3 100644
+--- a/copy-n-paste/eggdesktopfile.c
++++ b/copy-n-paste/eggdesktopfile.c
+@@ -31,7 +31,11 @@
+ #include <unistd.h>
+ 
+ #include <glib/gi18n.h>
++
++#ifndef MAC_INTEGRATION
+ #include <gdk/gdkx.h>
++#endif
++
+ #include <gtk/gtk.h>
+ 
+ struct EggDesktopFile {
+diff --git a/src/Makefile.am b/src/Makefile.am
+index dfc0958..4691381 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -43,7 +43,8 @@ AM_CPPFLAGS =						\
+ 	$(FR_CFLAGS)					\
+ 	$(JSON_GLIB_CFLAGS)				\
+ 	$(LIBNOTIFY_CFLAGS)				\
+-	$(LIBARCHIVE_CFLAGS)
++	$(LIBARCHIVE_CFLAGS)			\
++	$(MAC_INTEGRATION_CFLAGS)
+ 
+ BUILT_SOURCES =			\
+ 	fr-marshal.c		\
+@@ -226,7 +227,8 @@ file_roller_LDADD =					\
+ 	$(FR_LIBS)					\
+ 	$(JSON_GLIB_LIBS)				\
+ 	$(LIBNOTIFY_LIBS)				\
+-	$(LIBARCHIVE_LIBS)
++	$(LIBARCHIVE_LIBS)				\
++	$(MAC_INTEGRATION_LIBS)
+ 
+ if ENABLE_MAGIC
+ file_roller_LDADD += $(MAGIC_LIBS)
+diff --git a/src/dlg-package-installer.c b/src/dlg-package-installer.c
+index 6fa8b4c..c925991 100644
+--- a/src/dlg-package-installer.c
++++ b/src/dlg-package-installer.c
+@@ -22,7 +22,11 @@
+ #include <config.h>
+ #include <string.h>
+ #include <glib/gi18n.h>
++
++#ifndef MAC_INTEGRATION
+ #include <gdk/gdkx.h>
++#endif
++
+ #include <gtk/gtk.h>
+ #include "dlg-package-installer.h"
+ #include "gio-utils.h"
+diff --git a/src/fr-command-lrzip.c b/src/fr-command-lrzip.c
+index ad53a13..6bba7ba 100644
+--- a/src/fr-command-lrzip.c
++++ b/src/fr-command-lrzip.c
+@@ -45,7 +45,11 @@ list__process_line (char     *line,
+ 
+ 	struct stat st;
+ 	if (stat (comm->filename, &st) == 0)
++#ifdef __APPLE__		
++		fdata->modified = st.st_mtimespec.tv_sec;
++#else
+ 		fdata->modified = st.st_mtim.tv_sec;
++#endif
+ 	else
+ 		time(&(fdata->modified));
+ 
+diff --git a/src/fr-init.c b/src/fr-init.c
+index 2c3ad75..9a2b451 100644
+--- a/src/fr-init.c
++++ b/src/fr-init.c
+@@ -57,6 +57,9 @@
+ #include "typedefs.h"
+ #include "preferences.h"
+ 
++#ifdef MAC_INTEGRATION
++#include <gtkosxapplication.h>
++#endif
+ 
+ /* The capabilities are computed automatically in
+  * compute_supported_archive_types() so it's correct to initialize to 0 here. */
+@@ -623,10 +626,18 @@ initialize_data (void)
+ 					       g_str_equal,
+ 					       g_free,
+ 					       NULL);
++#ifdef MAC_INTEGRATION
++	gchar *res_path = gtkosx_application_get_resource_path();
++	if(res_path){
++		gchar *icon_path = g_build_filename(res_path,"/share/"PACKAGE_NAME"/icons",NULL);
++		gtk_icon_theme_append_search_path(gtk_icon_theme_get_default (),icon_path);
++		g_free(res_path);
++		g_free(icon_path);
++	}
++#endif
+ 
+ 	gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
+ 					   PKG_DATA_DIR G_DIR_SEPARATOR_S "icons");
+-
+ 	migrate_options_directory ();
+ 	register_archives ();
+ 	compute_supported_archive_types ();
