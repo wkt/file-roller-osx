@@ -3,13 +3,15 @@ AppName=FileRoller
 all:$(AppName).app
 	
 
-PREFIX=$(HOME)/gtk/inst
+PREFIX=${HOME}/gtk/inst
 
 file-roller.bundle:file-roller.bundle.in Makefile
 	sed "s|@PREFIX@|$(PREFIX)|g" file-roller.bundle.in >file-roller.bundle
 	
 
 $(AppName).app:file-roller.bundle file-roller-launcher.sh Makefile file-roller.icns Info.plist
+	@mkdir -p  $(PREFIX)/lib/
+	@touch $(PREFIX)/lib/charset.alias
 	gtk-mac-bundler file-roller.bundle
 	
 

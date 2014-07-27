@@ -39,7 +39,7 @@
        OSX. Note the ${gtkdir} macro, which expands to the correct
        library subdirectory for the specified gtk version. -->
   <binary>
-    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/immodules/*.so
+    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/immodules/*quartz.so
   </binary>
 
   <binary>
@@ -48,7 +48,7 @@
 
   <!-- And the print backends -->
   <binary>
-    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/printbackends/*.so
+    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/printbackends/*-cups.so
   </binary>
 
   <!-- Starting with 2.24, gdk-pixbuf installs into its own directory. -->
@@ -62,6 +62,10 @@
 
   <data>
     ${prefix}/etc/pango/
+  </data>
+  
+  <data>
+    ${prefix:opt}/share/mime
   </data>
 
   <!-- copy gsettings things -->
@@ -80,6 +84,9 @@
     ${prefix}/share/locale
   </translations>
 
+  <translations  name="file-roller">
+    ${prefix}/share/locale
+  </translations>
 
   <!-- Data to copy in, usually Glade/UI files, images, sounds files
        etc. The destination inside the bundle can be specified if the
@@ -94,8 +101,12 @@
   <!-- Copy in the themes data. You may want to trim this to save space
        in your bundle. -->
   <data>
-    ${prefix}/share/themes
+    ${prefix}/share/themes/Adwaita
   </data>
+  <data>
+    ${prefix}/share/themes/Mac
+  </data>
+
 
   <!-- Copy icons. Note that the .icns file is an Apple format which
        contains up to 4 sizes of icon. You can use
@@ -103,6 +114,11 @@
        artwork and create the file. -->
   <data dest="${bundle}/Contents/Resources">
     ${project}/file-roller.icns
+  </data>
+
+
+  <data dest="${bundle}/Contents/Resources/etc/gtk-3.0/settings.ini">
+    ${project}/settings.ini
   </data>
 
   <!-- This is where theme commands go. You can copy them in from your
@@ -121,9 +137,13 @@
        icon names. To be safe, you should use "all". "none" is useful
        if you want just the index.theme file but no icons, mostly
        needed for the "hicolor" base theme.
-  >
-  <icon-theme icons="auto">
-    Tango
-  </icon-theme -->
+  -->
+  <icon-theme icons="all">
+    gnome
+  </icon-theme>
+
+  <icon-theme icons="all">
+    hicolor
+  </icon-theme>
 
 </app-bundle>

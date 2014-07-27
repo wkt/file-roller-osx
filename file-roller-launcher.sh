@@ -39,7 +39,7 @@ export PANGO_SYSCONFDIR="$bundle_etc"
 
 
 ### the .mo file's name
-APP=name
+APP=file-roller
 
 I18NDIR="$bundle_data/locale"
 # Set the locale-related variables appropriately:
@@ -176,5 +176,5 @@ if /bin/expr "x$1" : '^x-psn_' > /dev/null; then
     shift 1
 fi
 
-export
+export LANGUAGE=$LANG
 $EXEC "$bundle_contents/MacOS/$name-bin" "$@" $EXTRA_ARGS
