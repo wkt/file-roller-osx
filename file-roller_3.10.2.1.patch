@@ -270,6 +270,38 @@ index 2c3ad75..e449816 100644
  	migrate_options_directory ();
  	register_archives ();
  	compute_supported_archive_types ();
+diff --git a/src/main.c b/src/main.c
+index 043f604..dc3e924 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -24,13 +24,26 @@
+ #include <glib/gi18n.h>
+ #include "fr-application.h"
+ 
++
++#ifdef MAC_INTEGRATION
++#include<gtkosxapplication.h>
++#endif
++
+ int
+ main (int argc, char **argv)
+ {
+ 	GtkApplication *app;
+ 	int             status;
++    const char *localedir = LOCALEDIR;
+ 
+-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
++#ifdef MAC_INTEGRATION
++   gchar *res_path = gtkosx_application_get_resource_path();
++   if(res_path){
++       localedir = g_build_filename(res_path,"/share/locale",NULL);
++       g_free(res_path);
++    }
++#endif
++	bindtextdomain (GETTEXT_PACKAGE, localedir);
+ 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+ 	textdomain (GETTEXT_PACKAGE);
+ 
 diff --git a/src/ui/app-menu.ui b/src/ui/app-menu.ui
 index cd43381..ca25172 100644
 --- a/src/ui/app-menu.ui
