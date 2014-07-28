@@ -4,28 +4,46 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>zip</string>
+				<string>ZIP</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>zip</string>
+			<key>CFBundleTypeName</key>
+			<string>Zip</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>FileRoller</string>
 	<key>CFBundleGetInfoString</key>
-	<string>3.10.x,Copyright 2014 GPL</string>
+	<string>3.10.x,© 2001-2010 The File roller Team,build by wkt 2014 for OS X</string>
 	<key>CFBundleIconFile</key>
 	<string>file-roller</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.gtk.fileroller</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>FileRoller</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>3.10.2.1</string>
 	<key>CFBundleSignature</key>
-	<string>MacOS</string>
+	<string>fileroller</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>CFBundleName</key>
-	<string>FileRoller</string>
+	<string>3.10.2.1</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2014 GPL</string>
+	<string>© 2001-2010 The File roller Team,build by wkt 2014 for OS X</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7</string>
 </dict>

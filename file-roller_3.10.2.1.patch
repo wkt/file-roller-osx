@@ -112,6 +112,84 @@ index 6fa8b4c..c925991 100644
  #include <gtk/gtk.h>
  #include "dlg-package-installer.h"
  #include "gio-utils.h"
+diff --git a/src/fr-application.c b/src/fr-application.c
+index 60ea595..7e4ae1c 100644
+--- a/src/fr-application.c
++++ b/src/fr-application.c
+@@ -41,6 +41,9 @@
+ #include "glib-utils.h"
+ #include "gtk-utils.h"
+ 
++#ifdef MAC_INTEGRATION
++#include<gtkosxapplication.h>
++#endif
+ 
+ #define ORG_GNOME_ARCHIVEMANAGER_XML "/org/gnome/FileRoller/../data/org.gnome.ArchiveManager1.xml"
+ #define SERVICE_TIMEOUT 10
+@@ -453,6 +456,10 @@ struct _FrApplicationPrivate {
+ 	guint          owner_id;
+ 	GSettings     *listing_settings;
+ 	GSettings     *ui_settings;
++    
++#ifdef MAC_INTEGRATION
++    GtkosxApplication *theApp;
++#endif
+ };
+ 
+ 
+@@ -467,7 +474,7 @@ fr_application_finalize (GObject *object)
+ 		g_bus_unown_name (self->priv->owner_id);
+ 	_g_object_unref (self->priv->listing_settings);
+ 	_g_object_unref (self->priv->ui_settings);
+-
++    _g_object_unref (self->priv->theApp);
+ 	release_data ();
+ 
+         G_OBJECT_CLASS (fr_application_parent_class)->finalize (object);
+@@ -822,6 +829,32 @@ fr_application_class_init (FrApplicationClass *klass)
+ 	application_class->activate = fr_application_activate;
+ }
+ 
++static void
++fr_application_open_files(FrApplication *self,gchar *path,GtkosxApplication *theApp)
++{
++    GtkWidget *window = NULL;
++    GFile *file;
++    
++    
++    GList *link;
++    
++	for (link = gtk_application_get_windows (GTK_APPLICATION (self));
++	     link != NULL;
++	     link = link->next)
++	{
++        if(fr_window_get_archive_file(FR_WINDOW (link->data)) == NULL){
++            window = GTK_WIDGET (link->data);
++            break;
++        }
++	}
++    
++    if(window == NULL)window = fr_window_new ();
++    gtk_window_present(GTK_WINDOW(window));
++    file = g_file_new_for_path (path);
++    fr_window_archive_open (FR_WINDOW (window), file, GTK_WINDOW (window));
++    
++    g_object_unref (file);
++}
+ 
+ static void
+ fr_application_init (FrApplication *self)
+@@ -844,6 +877,10 @@ fr_application_init (FrApplication *self)
+ 	self->priv->introspection_data = NULL;
+ 	self->priv->listing_settings = g_settings_new (FILE_ROLLER_SCHEMA_LISTING);
+ 	self->priv->ui_settings = g_settings_new (FILE_ROLLER_SCHEMA_UI);
++    self->priv->theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
++    
++    g_signal_connect_swapped(self->priv->theApp,"NSApplicationOpenFile",G_CALLBACK(fr_application_open_files),self);
++    gtkosx_application_ready (self->priv->theApp);
+ }
+ 
+ 
 diff --git a/src/fr-command-lrzip.c b/src/fr-command-lrzip.c
 index ad53a13..6bba7ba 100644
 --- a/src/fr-command-lrzip.c
@@ -129,7 +207,7 @@ index ad53a13..6bba7ba 100644
  		time(&(fdata->modified));
  
 diff --git a/src/fr-init.c b/src/fr-init.c
-index 2c3ad75..9a2b451 100644
+index 2c3ad75..e449816 100644
 --- a/src/fr-init.c
 +++ b/src/fr-init.c
 @@ -57,6 +57,9 @@
@@ -142,7 +220,19 @@ index 2c3ad75..9a2b451 100644
  
  /* The capabilities are computed automatically in
   * compute_supported_archive_types() so it's correct to initialize to 0 here. */
-@@ -623,10 +626,18 @@ initialize_data (void)
+@@ -171,6 +174,11 @@ FrExtensionType file_ext_type[] = {
+ };
+ 
+ 
++const char*just4icon[]={
++	"gnome-mime-application-x-archive",
++	"package-x-generic"
++};
++
+ GList        *CommandList;
+ gint          ForceDirectoryCreation;
+ GHashTable   *ProgramsCache;
+@@ -623,10 +631,18 @@ initialize_data (void)
  					       g_str_equal,
  					       g_free,
  					       NULL);
@@ -162,3 +252,23 @@ index 2c3ad75..9a2b451 100644
  	migrate_options_directory ();
  	register_archives ();
  	compute_supported_archive_types ();
+diff --git a/src/ui/app-menu.ui b/src/ui/app-menu.ui
+index cd43381..b67a37d 100644
+--- a/src/ui/app-menu.ui
++++ b/src/ui/app-menu.ui
+@@ -4,6 +4,7 @@
+       <item>
+         <attribute name="action">app.new</attribute>
+         <attribute name="label" translatable="yes">_New Archive</attribute>
++	<attribute name="accel"><![CDATA[<Primary>N]]></attribute>
+       </item>
+     </section>
+     <section>
+@@ -37,6 +38,7 @@
+       <item>
+         <attribute name="action">app.quit</attribute>
+         <attribute name="label" translatable="yes">_Quit</attribute>
++	<attribute name="accel"><![CDATA[<Primary>Q]]></attribute>
+       </item>
+     </section>
+   </menu>

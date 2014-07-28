@@ -116,6 +116,9 @@
     ${project}/file-roller.icns
   </data>
 
+  <data dest="${bundle}/Contents/Resources">
+    ${project}/doc-icon.icns
+  </data>
 
   <data dest="${bundle}/Contents/Resources/etc/gtk-3.0/settings.ini">
     ${project}/settings.ini
