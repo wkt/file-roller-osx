@@ -16,6 +16,7 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	@mkdir -p  $(PREFIX)/lib/
 	@touch $(PREFIX)/lib/charset.alias
 	gtk-mac-bundler file-roller.bundle
+	@touch "$(AppName).app"
 	
 
 file-roller.icns:Makefile
@@ -27,5 +28,15 @@ file-roller.icns:Makefile
 	done; \
 	$$cmd -out file-roller.icns
 
+do_lproj:
+	for d in *.lproj ; \
+	do \
+		for s in $$d/*.strings; \
+		do	\
+			mkdir -p  "$(AppName).app/Contents/Resources/$${d}"; \
+			plutil -convert binary1 -o "$(AppName).app/Contents/Resources/$${s}" $${s}; \
+		done; \
+	done
+
 clean:
-	rm -rf "$(AppName).app" file-roller.bundle
+	rm -rf "$(AppName).app" file-roller.bundle Info.plist 

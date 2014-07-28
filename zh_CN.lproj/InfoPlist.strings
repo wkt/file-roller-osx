@@ -1,0 +1,11 @@
+// !!! BINARY PROPERTY LIST WARNING !!!
+//
+// The pretty-printed property list below has been created
+// from a binary version on disk and should not be saved as
+// the ASCII format is a subset of the binary representation!
+//
+{
+	CFBundleDisplayName = "归档管理器";
+	CFBundleName = "归档管理器";
+	NSHumanReadableCopyright = "© 2001-2010 The File roller Team,build by wkt 2014 for OS X";
+}

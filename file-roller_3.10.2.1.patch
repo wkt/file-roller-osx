@@ -113,7 +113,7 @@ index 6fa8b4c..c925991 100644
  #include "dlg-package-installer.h"
  #include "gio-utils.h"
 diff --git a/src/fr-application.c b/src/fr-application.c
-index 60ea595..7e4ae1c 100644
+index 60ea595..f1e222a 100644
 --- a/src/fr-application.c
 +++ b/src/fr-application.c
 @@ -41,6 +41,9 @@
@@ -146,6 +146,24 @@ index 60ea595..7e4ae1c 100644
  	release_data ();
  
          G_OBJECT_CLASS (fr_application_parent_class)->finalize (object);
+@@ -651,7 +658,7 @@ fr_application_command_line (GApplication            *application,
+ 
+ 	if (remaining_args == NULL) { /* No archive specified. */
+ 		if (! arg_service)
+-			gtk_widget_show (fr_window_new ());
++			gtk_window_present (GTK_WINDOW(fr_window_new ()));
+ 		return fr_application_command_line_finished (application, EXIT_SUCCESS);
+ 	}
+ 
+@@ -732,7 +739,7 @@ fr_application_command_line (GApplication            *application,
+ 			GFile     *file;
+ 
+ 			window = fr_window_new ();
+-			gtk_widget_show (window);
++			gtk_window_present (GTK_WINDOW(window));
+ 
+ 			file = g_application_command_line_create_file_for_arg (command_line, filename);
+ 			fr_window_archive_open (FR_WINDOW (window), file, GTK_WINDOW (window));
 @@ -822,6 +829,32 @@ fr_application_class_init (FrApplicationClass *klass)
  	application_class->activate = fr_application_activate;
  }
@@ -253,22 +271,44 @@ index 2c3ad75..e449816 100644
  	register_archives ();
  	compute_supported_archive_types ();
 diff --git a/src/ui/app-menu.ui b/src/ui/app-menu.ui
-index cd43381..b67a37d 100644
+index cd43381..ca25172 100644
 --- a/src/ui/app-menu.ui
 +++ b/src/ui/app-menu.ui
-@@ -4,6 +4,7 @@
+@@ -1,9 +1,16 @@
+ <interface>
+   <menu id="app-menu">
++  	<section>
++	    <item>
++	      <attribute name="action">app.about</attribute>
++	      <attribute name="label" translatable="yes">_About Archive Manager</attribute>
++	    </item>	
++	</section>
+     <section>
        <item>
          <attribute name="action">app.new</attribute>
          <attribute name="label" translatable="yes">_New Archive</attribute>
-+	<attribute name="accel"><![CDATA[<Primary>N]]></attribute>
++		<attribute name="accel"><![CDATA[<Primary>N]]></attribute>
        </item>
      </section>
      <section>
-@@ -37,6 +38,7 @@
+@@ -26,17 +33,14 @@
+       </item>
+     </section>
+     <section>
+-      <item>
++      <!--item>
+         <attribute name="action">app.help</attribute>
+         <attribute name="label" translatable="yes">_Help</attribute>
+-      </item>
+-      <item>
+-        <attribute name="action">app.about</attribute>
+-        <attribute name="label" translatable="yes">_About Archive Manager</attribute>
+-      </item>
++      </item -->
        <item>
          <attribute name="action">app.quit</attribute>
          <attribute name="label" translatable="yes">_Quit</attribute>
-+	<attribute name="accel"><![CDATA[<Primary>Q]]></attribute>
++		<attribute name="accel"><![CDATA[<Primary>Q]]></attribute>
        </item>
      </section>
    </menu>
