@@ -16,6 +16,7 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	@mkdir -p  $(PREFIX)/lib/
 	@touch $(PREFIX)/lib/charset.alias
 	gtk-mac-bundler file-roller.bundle
+	make do_lproj
 	@touch "$(AppName).app"
 	
 
