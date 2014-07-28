@@ -40,4 +40,4 @@ do_lproj:
 	done
 
 clean:
-	rm -rf "$(AppName).app" file-roller.bundle Info.plist 
+	rm -rf "$(AppName).app" file-roller.bundle Info.plist file-roller.icns
