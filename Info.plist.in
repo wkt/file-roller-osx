@@ -12,6 +12,10 @@
 				<string>zip</string>
 				<string>ZIP</string>
 			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/zip</string>
+			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>zip</string>
 			<key>CFBundleTypeName</key>
@@ -20,6 +24,8 @@
 			<string>Viewer</string>
 			<key>NSPersistentStoreTypeKey</key>
 			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -33,6 +39,246 @@
 			<string>Rar archive</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tar</string>
+				<string>TAR</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/x-tar</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>tar archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>xz</string>
+				<string>XZ</string>
+				<string>tar.xz</string>
+				<string>txz</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/x-xz</string>
+				<string>application/x-xz-compressed-tar</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>XZ compressed archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gz</string>
+				<string>GZ</string>
+				<string>gzip</string>
+				<string>GZIP</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>Gzip archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>jar</string>
+				<string>JAR</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>Java archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tgz</string>
+				<string>TGZ</string>
+				<string>tar.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>Gzip tar archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>bz</string>
+				<string>BZ</string>
+				<string>bz2</string>
+				<string>BZ2</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>Bzip archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tbz</string>
+				<string>TBZ</string>
+				<string>tbz2</string>
+				<string>TBZ2</string>
+				<string>tar.bz</string>
+				<string>tar.bz2</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>Bzip tar archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gtar</string>
+				<string>GTAR</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>GNU archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>7z</string>
+				<string>7Z</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>7Z archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>lzma</string>
+				<string>LZMA</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>LZMA archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>lz</string>
+				<string>LZ</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>LZ archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>apk</string>
+				<string>APK</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>APK archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>*</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
 			<key>NSPersistentStoreTypeKey</key>
 			<string>XML</string>
 		</dict>

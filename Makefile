@@ -17,6 +17,10 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	@touch $(PREFIX)/lib/charset.alias
 	gtk-mac-bundler file-roller.bundle
 	make do_lproj
+	make update-icon-cache
+	plutil -convert binary1 "$(AppName).app/Contents/Info.plist"
+	mkdir -p "$(AppName).app/Contents/Resources/bin"
+	rar=unrar; ( test -n "$$rar" && test -f "$$rar" && cp -va "$$rar" "$(AppName).app/Contents/Resources/bin" ) || true
 	@touch "$(AppName).app"
 	
 
@@ -38,6 +42,27 @@ do_lproj:
 			plutil -convert binary1 -o "$(AppName).app/Contents/Resources/$${s}" $${s}; \
 		done; \
 	done
+
+do_strip:
+	find "$(AppName).app" -type f |while read f ; \
+	do \
+		if file "$$f" | grep -q -E "Mach-O.*executable|Mach-O.*shared library" ; then \
+			strip  "$$f" 2>/dev/null ; \
+		fi; \
+	done
+
+update-icon-cache:
+	for d in "$(AppName).app"/Contents/Resources/share/icons/*; do \
+		test -d "$$d" && test -f "$$d"/icon-theme.cache &&  gtk-update-icon-cache -f -i -q "$$d" ; \
+	done
+
+cp-plist:Info.plist
+	cp -av Info.plist "$(AppName).app/Contents/"
+	
+
+dmg:$(AppName).app
+	bash -x ~/bin/build_dmg.sh "$(AppName).app"
+
 
 clean:
 	rm -rf "$(AppName).app" file-roller.bundle Info.plist file-roller.icns
