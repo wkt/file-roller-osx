@@ -1,4 +1,4 @@
-AppName=File Roller
+AppName=FileRoller
 
 all:$(AppName).app
 	
