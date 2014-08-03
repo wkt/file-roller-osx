@@ -96,6 +96,201 @@ index dfc0958..4691381 100644
  
  if ENABLE_MAGIC
  file_roller_LDADD += $(MAGIC_LIBS)
+diff --git a/src/actions.c b/src/actions.c
+index 066ec72..46115e4 100644
+--- a/src/actions.c
++++ b/src/actions.c
+@@ -40,6 +40,9 @@
+ #include "fr-init.h"
+ #include "typedefs.h"
+ 
++#ifdef MAC_INTEGRATION
++#include <gtkosxapplication.h>
++#endif
+ 
+ void
+ activate_action_new (GtkAction *action,
+@@ -481,9 +484,16 @@ activate_action_about (GtkAction *action,
+ 	FrWindow   *window = data;
+ 	const char *authors[] = { "Paolo Bacchilega <paolo.bacchilega@libero.it>", NULL	};
+ 	const char *documenters [] = { "Alexander Kirillov", "Breda McColgan", NULL };
++    char *version = g_strdup(VERSION);
++    
++#ifdef MAC_INTEGRATION
++    static char *versionCode = NULL;
++    if(versionCode == NULL) versionCode = gtkosx_application_get_bundle_info("CFBundleVersionCode");
++    version = g_strdup_printf(VERSION"(%s)",versionCode);
++#endif
+ 
+ 	gtk_show_about_dialog (GTK_WINDOW (window),
+-			       "version", VERSION,
++			       "version", version,
+ 			       "copyright", _("Copyright \xc2\xa9 2001–2010 Free Software Foundation, Inc."),
+ 			       "comments", _("An archive manager for GNOME."),
+ 			       "authors", authors,
+@@ -493,4 +503,5 @@ activate_action_about (GtkAction *action,
+ 			       "license-type", GTK_LICENSE_GPL_2_0,
+ 			       "wrap-license", TRUE,
+ 			       NULL);
++    g_free(version);
+ }
+diff --git a/src/app-menu.c b/src/app-menu.c
+index 8a51e0e..0b73348 100644
+--- a/src/app-menu.c
++++ b/src/app-menu.c
+@@ -29,6 +29,11 @@
+ #include "gtk-utils.h"
+ #include "preferences.h"
+ 
++#include <glib/gi18n.h>
++
++#ifdef MAC_INTEGRATION
++#include<gtkosxapplication.h>
++#endif
+ 
+ #define GET_ACTION(action_name) (G_SIMPLE_ACTION (g_action_map_lookup_action (G_ACTION_MAP (application), (action_name))))
+ 
+@@ -143,6 +148,24 @@ activate_quit (GSimpleAction *action,
+ 	activate_action_quit (NULL, NULL);
+ }
+ 
++#ifdef MAC_INTEGRATION
++static inline void go_check_update(GtkWindow *window);
++
++static void
++activate_checkupdate (GSimpleAction *action,
++               GVariant      *parameter,
++               gpointer       user_data)
++{
++	GApplication *application = user_data;
++	GList        *windows;
++    
++	windows = gtk_application_get_windows (GTK_APPLICATION (application));
++	if (windows != NULL)
++		go_check_update (GTK_WINDOW(windows->data));
++    else
++        go_check_update (NULL);
++}
++#endif
+ 
+ static const GActionEntry app_menu_entries[] = {
+ 	{ "new",  activate_new },
+@@ -151,6 +174,11 @@ static const GActionEntry app_menu_entries[] = {
+ 	{ "help",  activate_help },
+ 	{ "about", activate_about },
+ 	{ "quit",  activate_quit }
++    
++#ifdef MAC_INTEGRATION
++    ,
++    {"update",activate_checkupdate }
++#endif
+ };
+ 
+ 
+@@ -215,3 +243,103 @@ initialize_app_menu (GApplication *application)
+ 			  G_CALLBACK (pref_list_mode_changed),
+ 			  application);
+ }
++
++#ifdef MAC_INTEGRATION
++
++static inline gint64 get_bundle_version_code()
++{
++    static gint64 ret  = 0;
++    if(ret == 0){
++        gchar *info = gtkosx_application_get_bundle_info("CFBundleVersionCode");
++        if(info){
++            ret = g_ascii_strtoll(info,NULL,10);
++            g_free(info);
++        }
++    }
++    return ret;
++}
++
++#define CURRENT_VERSION (get_bundle_version_code())
++
++typedef struct {
++    GtkMessageDialog *mDialog;
++    GKeyFile         *keyfile;
++    gboolean         canUpdate;
++}CheckingData;
++
++
++static void  _on_checking_response(GtkDialog *dialog,
++                                   gint       response_id,
++                                   CheckingData   *data)
++{
++    if(response_id == GTK_RESPONSE_OK && data->canUpdate){
++        gtk_show_uri(NULL,
++                     "http://fileroller.xx51.net/",
++                     g_get_real_time(),
++                     NULL);
++    }
++    gtk_widget_destroy(GTK_WIDGET(dialog));
++    g_key_file_free(data->keyfile);
++    g_free(data);
++}
++
++static gboolean _on_checking_update_finished (CheckingData *data)
++{
++    gint64 versionCode =    g_key_file_get_int64  (data->keyfile,"VersionInfo","versionCode",NULL);
++    if(versionCode>CURRENT_VERSION){
++        gtk_message_dialog_format_secondary_markup(data->mDialog,
++                                                   _("Found new version: %s(%ld).\nGo and update it ?"),
++                                                   g_key_file_get_value(data->keyfile,"VersionInfo","version",NULL),
++                                                   versionCode);
++        data->canUpdate = TRUE;
++        gtk_dialog_set_response_sensitive(GTK_DIALOG(data->mDialog),GTK_RESPONSE_CANCEL,TRUE);
++
++    }else{
++        gtk_message_dialog_format_secondary_markup(data->mDialog,
++                                                   _("No update"));
++        data->canUpdate = FALSE;
++    }
++    gtk_dialog_set_response_sensitive(GTK_DIALOG(data->mDialog),GTK_RESPONSE_OK,TRUE);
++    gtk_window_present(GTK_WINDOW(data->mDialog));
++    return FALSE;
++}
++
++static gpointer _checking_thread(CheckingData *data)
++{
++    char *out = NULL;
++    int st = -1;
++    g_spawn_command_line_sync("curl http://fileroller.xx51.net/fileroller-latest.do",&out,NULL,&st,NULL);
++    ///g_print("out:%s\n",out);
++    if(out && st == 0){
++        g_key_file_load_from_data(data->keyfile,out,-1,G_KEY_FILE_NONE,NULL);
++    }
++    g_free(out);
++    g_idle_add((GSourceFunc)_on_checking_update_finished,data);
++    return NULL;
++}
++
++static inline void go_check_update(GtkWindow *window)
++{
++    GtkWidget *dialog = gtk_message_dialog_new (window,
++                                                GTK_DIALOG_DESTROY_WITH_PARENT,
++                                                GTK_MESSAGE_INFO,
++                                                GTK_BUTTONS_OK_CANCEL,
++                                                _("Checking for update"));
++    
++    gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER_ON_PARENT);
++    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),GTK_RESPONSE_OK,FALSE);
++    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),GTK_RESPONSE_CANCEL,FALSE);
++    gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dialog),_("Please wait ..."));
++    gtk_window_set_title(GTK_WINDOW(dialog),_("Checking update"));
++    gtk_window_present(GTK_WINDOW(dialog));
++    
++    CheckingData *data = g_new0(CheckingData,1);
++    data->mDialog = GTK_MESSAGE_DIALOG(dialog);
++    data->keyfile = g_key_file_new();
++    g_thread_unref(g_thread_new("checking",(GThreadFunc)_checking_thread,data));
++    
++    g_signal_connect(dialog,"response",G_CALLBACK(_on_checking_response),data);
++    
++}
++
++#endif
 diff --git a/src/dlg-package-installer.c b/src/dlg-package-installer.c
 index 6fa8b4c..c925991 100644
 --- a/src/dlg-package-installer.c
@@ -303,7 +498,7 @@ index 043f604..dc3e924 100644
  	textdomain (GETTEXT_PACKAGE);
  
 diff --git a/src/ui/app-menu.ui b/src/ui/app-menu.ui
-index cd43381..ca25172 100644
+index cd43381..f9c07c6 100644
 --- a/src/ui/app-menu.ui
 +++ b/src/ui/app-menu.ui
 @@ -1,9 +1,16 @@
@@ -323,11 +518,15 @@ index cd43381..ca25172 100644
        </item>
      </section>
      <section>
-@@ -26,17 +33,14 @@
-       </item>
+@@ -27,16 +34,19 @@
      </section>
      <section>
--      <item>
+       <item>
++        <attribute name="action">app.update</attribute>
++        <attribute name="label" translatable="yes">Check update</attribute>
++      </item>
++    </section>
++    <section>
 +      <!--item>
          <attribute name="action">app.help</attribute>
          <attribute name="label" translatable="yes">_Help</attribute>

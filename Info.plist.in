@@ -307,5 +307,7 @@
 	<string>© 2001-2010 The File roller Team,build by wkt 2014 for OS X</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7</string>
+	<key>CFBundleVersionCode</key>
+	<string>2</string>
 </dict>
 </plist>

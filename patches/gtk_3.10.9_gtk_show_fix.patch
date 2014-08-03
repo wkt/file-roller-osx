@@ -1,0 +1,18 @@
+diff --git a/gtk/gtkshow.c b/gtk/gtkshow.c
+index 4ec7489..ae2375d 100644
+--- a/gtk/gtkshow.c
++++ b/gtk/gtkshow.c
+@@ -76,6 +76,12 @@ gtk_show_uri (GdkScreen    *screen,
+ 
+   ret = g_app_info_launch_default_for_uri (uri, (GAppLaunchContext*)context, error);
+   g_object_unref (context);
+-
++#ifdef GDK_WINDOWING_QUARTZ
++    if(!ret){
++        char *cmd = g_strdup_printf("open '%s'",uri);
++        ret = g_spawn_command_line_sync(cmd,NULL,NULL,NULL,NULL);
++        g_free(cmd);
++    }
++#endif
+   return ret;
+ }

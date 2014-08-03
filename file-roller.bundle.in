@@ -60,6 +60,11 @@
     ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/
   </binary>
 
+  <binary dest="${bundle}/Contents/Resources/bin">
+    ${project}/bin
+  </binary>
+
+
   <data>
     ${prefix}/etc/pango/
   </data>

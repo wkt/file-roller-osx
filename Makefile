@@ -20,7 +20,7 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	make update-icon-cache
 	plutil -convert binary1 "$(AppName).app/Contents/Info.plist"
 	mkdir -p "$(AppName).app/Contents/Resources/bin"
-	rar=unrar; ( test -n "$$rar" && test -f "$$rar" && cp -va "$$rar" "$(AppName).app/Contents/Resources/bin" ) || true
+	###rar=unrar; ( test -n "$$rar" && test -f "$$rar" && cp -va "$$rar" "$(AppName).app/Contents/Resources/bin" ) || true
 	@touch "$(AppName).app"
 	
 
