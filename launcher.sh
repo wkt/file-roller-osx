@@ -18,7 +18,7 @@ bundle=`dirname "$tmp"`
 bundle_contents="$bundle"/Contents
 bundle_res="$bundle_contents"/Resources
 bundle_lib="$bundle_res"/lib
-bundle_bin="$bundle_res"/bin
+bundle_bin="$bundle_contents"/bin
 bundle_data="$bundle_res"/share
 bundle_etc="$bundle_res"/etc
 
