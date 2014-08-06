@@ -17,12 +17,9 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	@touch $(PREFIX)/lib/charset.alias
 	gtk-mac-bundler file-roller.bundle
 	make do_lproj
-	make update-icon-cache
+	make copy-icon-themes
 	plutil -convert binary1 "$(AppName).app/Contents/Info.plist"
-	mkdir -p "$(AppName).app/Contents/Resources/bin"
-	###rar=unrar; ( test -n "$$rar" && test -f "$$rar" && cp -va "$$rar" "$(AppName).app/Contents/Resources/bin" ) || true
 	@touch "$(AppName).app"
-	
 
 file-roller.icns:Makefile
 	cmd=makeicns;\
@@ -51,10 +48,19 @@ do_strip:
 		fi; \
 	done
 
-update-icon-cache:
-	for d in "$(AppName).app"/Contents/Resources/share/icons/*; do \
-		test -d "$$d" && test -f "$$d"/icon-theme.cache &&  gtk-update-icon-cache -f -i -q "$$d" ; \
+copy-icon-themes:
+	@mkdir -p "$(AppName).app/Contents/Resources/share/icons"
+	for ic in gnome hicolor ; do \
+		d="$(PREFIX)/share/icons/$$ic" ; \
+		if test -d "$$d"; then \
+			cp -r "$$d" "$(AppName).app/Contents/Resources/share/icons/$$ic" ; \
+			gtk-update-icon-cache -f -i -q "$(AppName).app/Contents/Resources/share/icons/$$ic" ; \
+		else \
+			continue; \
+		fi; \
 	done
+	@rm -rf "$(AppName).app/Contents/Resources/share/icons/gnome/256x256"
+	
 
 cp-plist:Info.plist
 	cp -av Info.plist "$(AppName).app/Contents/"

@@ -80,6 +80,9 @@
   <data>
   	${prefix}/share/glib-2.0/schemas/org.gnome.FileRoller.gschema.xml
   </data>
+  <data>
+  	${prefix}/share/glib-2.0/schemas/org.gtk.Settings.*.xml
+  </data>
 
   <!-- Translation filenames, one for each program or library that you
        want to copy in to the bundle. The "dest" attribute is
@@ -145,13 +148,13 @@
        icon names. To be safe, you should use "all". "none" is useful
        if you want just the index.theme file but no icons, mostly
        needed for the "hicolor" base theme.
-  -->
-  <icon-theme icons="auto">
+  >
+  <icon-theme icons="all">
     gnome
   </icon-theme>
 
   <icon-theme icons="auto">
     hicolor
-  </icon-theme>
+  </icon-theme -->
 
 </app-bundle>

@@ -178,5 +178,5 @@ if /bin/expr "x$1" : '^x-psn_' > /dev/null; then
 fi
 
 export LANGUAGE=$LANG
-$EXEC "$bundle_contents/MacOS/$name-bin"  "$@" $EXTRA_ARGS &>/tmp/.${APP}.log.$$
+$EXEC "$bundle_contents/MacOS/$name-bin"  "$@" $EXTRA_ARGS &>/tmp/.${APP}.log.${UID}
 exit -1
