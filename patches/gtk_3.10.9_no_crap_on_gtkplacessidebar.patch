@@ -1,0 +1,37 @@
+--- a/gtk/gtkplacessidebar.c	2014-08-09 21:05:16.000000000 +0800
++++ b/gtk/gtkplacessidebar.c	2014-08-07 00:32:31.000000000 +0800
+@@ -854,6 +854,7 @@
+   /* XDG directories */
+   add_special_dirs (sidebar);
+ 
++#ifndef  GDK_WINDOWING_QUARTZ
+   /* Trash */
+   if (!sidebar->local_only)
+     {
+@@ -866,8 +867,9 @@
+                  _("Open the trash"));
+       g_object_unref (icon);
+     }
++#endif
+ 
+-  /* Application-side shortcuts */
++    /* Application-side shortcuts */
+   add_application_shortcuts (sidebar);
+ 
+   /* go through all connected drives */
+@@ -1152,6 +1154,7 @@
+   g_slist_foreach (bookmarks, (GFunc) g_object_unref, NULL);
+   g_slist_free (bookmarks);
+ 
++#ifndef  GDK_WINDOWING_QUARTZ
+   /* network */
+   if (!sidebar->local_only)
+     {
+@@ -1224,6 +1227,7 @@
+           g_free (tooltip);
+         }
+     }
++#endif
+ 
+   g_list_free_full (network_volumes, g_object_unref);
+   g_list_free_full (network_mounts, g_object_unref);
