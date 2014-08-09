@@ -308,6 +308,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7</string>
 	<key>CFBundleVersionCode</key>
-	<string>2</string>
+	<string>3</string>
 </dict>
 </plist>
