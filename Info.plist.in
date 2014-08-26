@@ -298,7 +298,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.10.2.1</string>
+	<string>3.10.2.1-@BundleVersionCode@</string>
 	<key>CFBundleSignature</key>
 	<string>fileroller</string>
 	<key>CFBundleVersion</key>
@@ -308,6 +308,8 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7</string>
 	<key>CFBundleVersionCode</key>
-	<string>3</string>
+	<string>@BundleVersionCode@</string>
+	<key>CFBundleBuildDate</key>
+	<string>@DATE@</string>
 </dict>
 </plist>

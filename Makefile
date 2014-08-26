@@ -4,13 +4,14 @@ all:$(AppName).app
 	
 
 PREFIX=${HOME}/gtk/inst
+BundleVersionCode=3
 
 file-roller.bundle:file-roller.bundle.in Makefile
 	sed "s|@PREFIX@|$(PREFIX)|g" file-roller.bundle.in >file-roller.bundle
 	
 
 Info.plist:Info.plist.in Makefile
-	sed "s|@AppName@|$(AppName)|g" Info.plist.in >Info.plist
+	sed "s|@AppName@|$(AppName)|g;s|@DATE@|$(shell date '+%Y-%m-%d %H:%M:%S')|g;s|@BundleVersionCode@|$(BundleVersionCode)|g" Info.plist.in >Info.plist
 
 $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.plist
 	@mkdir -p  $(PREFIX)/lib/
