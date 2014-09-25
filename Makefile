@@ -54,7 +54,7 @@ copy-icon-themes:
 	for ic in gnome hicolor ; do \
 		d="$(PREFIX)/share/icons/$$ic" ; \
 		if test -d "$$d"; then \
-			cp -r "$$d" "$(AppName).app/Contents/Resources/share/icons/$$ic" ; \
+			cp -r "$$d/" "$(AppName).app/Contents/Resources/share/icons/$$ic/" ; \
 			gtk-update-icon-cache -f -i -q "$(AppName).app/Contents/Resources/share/icons/$$ic" ; \
 		else \
 			continue; \

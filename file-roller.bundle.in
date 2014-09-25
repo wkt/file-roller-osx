@@ -65,9 +65,9 @@
   </binary>
 
 
-  <data>
+  <!--data>
     ${prefix}/etc/pango/
-  </data>
+  </data -->
   
   <data>
     ${prefix:opt}/share/mime

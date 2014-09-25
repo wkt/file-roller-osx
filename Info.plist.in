@@ -271,6 +271,23 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>iso</string>
+				<string>ISO</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>cd/dvd image</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
 				<string>*</string>
 			</array>
 			<key>CFBundleTypeName</key>

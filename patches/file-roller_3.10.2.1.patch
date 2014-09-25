@@ -308,7 +308,7 @@ index 6fa8b4c..c925991 100644
  #include "dlg-package-installer.h"
  #include "gio-utils.h"
 diff --git a/src/fr-application.c b/src/fr-application.c
-index 60ea595..f1e222a 100644
+index 60ea595..b688848 100644
 --- a/src/fr-application.c
 +++ b/src/fr-application.c
 @@ -41,6 +41,9 @@
@@ -359,12 +359,35 @@ index 60ea595..f1e222a 100644
  
  			file = g_application_command_line_create_file_for_arg (command_line, filename);
  			fr_window_archive_open (FR_WINDOW (window), file, GTK_WINDOW (window));
-@@ -822,6 +829,32 @@ fr_application_class_init (FrApplicationClass *klass)
+@@ -791,13 +798,20 @@ static void
+ fr_application_activate (GApplication *application)
+ {
+ 	GList *link;
++    gboolean present_one_window = FALSE;
+ 
+ 	for (link = gtk_application_get_windows (GTK_APPLICATION (application));
+ 	     link != NULL;
+ 	     link = link->next)
+ 	{
+-		if (! fr_window_is_batch_mode (FR_WINDOW (link->data)))
+-			gtk_widget_show (GTK_WIDGET (link->data));
++		if (! fr_window_is_batch_mode (FR_WINDOW (link->data))){
++			if(present_one_window){
++                gtk_widget_show (GTK_WIDGET (link->data));
++            }else{
++                gtk_window_present(GTK_WINDOW(link->data));
++                present_one_window = TRUE;
++            }
++        }
+ 	}
+ 
+ 	gdk_notify_startup_complete ();
+@@ -822,6 +836,32 @@ fr_application_class_init (FrApplicationClass *klass)
  	application_class->activate = fr_application_activate;
  }
  
 +static void
-+fr_application_open_files(FrApplication *self,gchar *path,GtkosxApplication *theApp)
++fr_application_open_file(FrApplication *self,gchar *path,GtkosxApplication *theApp)
 +{
 +    GtkWidget *window = NULL;
 +    GFile *file;
@@ -392,16 +415,24 @@ index 60ea595..f1e222a 100644
  
  static void
  fr_application_init (FrApplication *self)
-@@ -844,6 +877,10 @@ fr_application_init (FrApplication *self)
+@@ -844,6 +884,9 @@ fr_application_init (FrApplication *self)
  	self->priv->introspection_data = NULL;
  	self->priv->listing_settings = g_settings_new (FILE_ROLLER_SCHEMA_LISTING);
  	self->priv->ui_settings = g_settings_new (FILE_ROLLER_SCHEMA_UI);
 +    self->priv->theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
 +    
-+    g_signal_connect_swapped(self->priv->theApp,"NSApplicationOpenFile",G_CALLBACK(fr_application_open_files),self);
-+    gtkosx_application_ready (self->priv->theApp);
++    g_signal_connect_swapped(self->priv->theApp,"NSApplicationOpenFile",G_CALLBACK(fr_application_open_file),self);
  }
  
+ 
+@@ -852,7 +895,7 @@ fr_application_new (void)
+ {
+         return g_object_new (fr_application_get_type (),
+                              "application-id", "org.gnome.FileRoller",
+-                             "flags", G_APPLICATION_FLAGS_NONE,
++                             "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                              NULL);
+ }
  
 diff --git a/src/fr-command-lrzip.c b/src/fr-command-lrzip.c
 index ad53a13..6bba7ba 100644
@@ -465,6 +496,140 @@ index 2c3ad75..e449816 100644
  	migrate_options_directory ();
  	register_archives ();
  	compute_supported_archive_types ();
+diff --git a/src/fr-window.c b/src/fr-window.c
+index 3747f5e..0300273 100644
+--- a/src/fr-window.c
++++ b/src/fr-window.c
+@@ -4220,7 +4220,7 @@ file_list_drag_begin (GtkWidget          *widget,
+ 			     8, GDK_PROP_MODE_REPLACE,
+ 			     (guchar *) XDS_FILENAME,
+ 			     strlen (XDS_FILENAME));
+-
++    g_object_set_data(widget,"dragPromisedFilesOfTypes",0x00000001);
+ 	return TRUE;
+ }
+ 
+@@ -4356,7 +4356,7 @@ fr_window_folder_tree_drag_data_get (GtkWidget        *widget,
+ {
+ 	FrWindow *window = user_data;
+ 	GList    *file_list;
+-	char     *uri;
++	char     *uri = NULL;
+ 	GFile    *destination;
+ 	GFile    *destination_folder;
+ 
+@@ -4387,14 +4387,28 @@ fr_window_folder_tree_drag_data_get (GtkWidget        *widget,
+ 		return TRUE;
+ 	}
+ 
++#ifndef GDK_WINDOWING_QUARTZ
+ 	if (! nautilus_xds_dnd_is_valid_xds_context (context))
+ 		return FALSE;
+ 
+ 	uri  = get_xds_atom_value (context);
++#endif
++
++	if(uri == NULL || uri[0] == 0){
++		uri = g_object_get_data(context,"drag_to_uri");
++		g_object_set_data(context,"drag_to_uri",NULL);
++		g_object_set_data(context,"file_list",file_list);
++	}
+ 	g_return_val_if_fail (uri != NULL, FALSE);
+ 
+ 	destination = g_file_new_for_uri (uri);
+-	destination_folder = g_file_get_parent (destination);
++	char *dpath = g_file_get_path(destination);
++	if(g_file_test(dpath,G_FILE_TEST_IS_DIR)){
++		destination_folder = g_file_new_for_path(dpath);
++	}else{
++		destination_folder = g_file_get_parent (destination);	
++	}
++	g_free(dpath);
+ 
+ 	g_object_unref (destination);
+ 
+@@ -4417,7 +4431,11 @@ fr_window_folder_tree_drag_data_get (GtkWidget        *widget,
+ 		g_free (window->priv->drag_base_dir);
+ 		_g_string_list_free (window->priv->drag_file_list);
+ 		window->priv->drag_destination_folder = g_object_ref (destination_folder);
+-		window->priv->drag_base_dir = fr_window_get_selected_folder_in_tree_view (window);
++		gchar *t0 = fr_window_get_selected_folder_in_tree_view (window);
++		gchar *t1 = g_path_get_dirname(t0);
++		window->priv->drag_base_dir = g_strdup_printf("%s/",t1);
++		g_free(t0);
++		g_free(t1);
+ 		window->priv->drag_file_list = file_list;
+ 	}
+ 
+@@ -4429,7 +4447,7 @@ fr_window_folder_tree_drag_data_get (GtkWidget        *widget,
+ 
+ 	debug (DEBUG_INFO, "::DragDataGet <--\n");
+ 
+-	return TRUE;
++	return FALSE;
+ }
+ 
+ 
+@@ -4439,7 +4457,7 @@ fr_window_file_list_drag_data_get (FrWindow         *window,
+ 				   GtkSelectionData *selection_data,
+ 				   GList            *path_list)
+ {
+-	char  *uri;
++	char  *uri=NULL;
+ 	GFile *destination;
+ 	GFile *destination_folder;
+ 
+@@ -4471,14 +4489,27 @@ fr_window_file_list_drag_data_get (FrWindow         *window,
+ 		return TRUE;
+ 	}
+ 
++#ifndef GDK_WINDOWING_QUARTZ
+ 	if (! nautilus_xds_dnd_is_valid_xds_context (context))
+ 		return FALSE;
+ 
+ 	uri = get_xds_atom_value (context);
+-	g_return_val_if_fail (uri != NULL, FALSE);
++#endif
+ 
++    if(uri == NULL || uri[0] == 0){
++       uri = g_object_get_data(context,"drag_to_uri");
++       g_object_set_data(context,"drag_to_uri",NULL);
++    }
++	g_return_val_if_fail (uri != NULL, FALSE);
+ 	destination = g_file_new_for_uri (uri);
+-	destination_folder = g_file_get_parent (destination);
++
++	char *dpath = g_file_get_path(destination);
++	if(g_file_test(dpath,G_FILE_TEST_IS_DIR)){
++	    destination_folder = g_file_new_for_path(dpath);
++	}else{
++	    destination_folder = g_file_get_parent (destination);   
++	}
++	g_free(dpath);
+ 
+ 	g_object_unref (destination);
+ 
+@@ -4503,6 +4534,7 @@ fr_window_file_list_drag_data_get (FrWindow         *window,
+ 		window->priv->drag_destination_folder = g_object_ref (destination_folder);
+ 		window->priv->drag_base_dir = g_strdup (fr_window_get_current_location (window));
+ 		window->priv->drag_file_list = fr_window_get_file_list_from_path_list (window, path_list, NULL);
++		g_object_set_data(context,"file_list",window->priv->drag_file_list);
+ 	}
+ 
+ 	g_object_unref (destination_folder);
+diff --git a/src/glib-utils.c b/src/glib-utils.c
+index 03ae634..e9c1987 100644
+--- a/src/glib-utils.c
++++ b/src/glib-utils.c
+@@ -1054,7 +1054,7 @@ sanitize_filename (const char *file_name)
+ {
+ 	size_t      prefix_len;
+ 	char const *p;
+-
++	if(file_name == NULL || file_name[0] == 0)return NULL;
+ 	prefix_len = 0;
+ 	for (p = file_name; *p; ) {
+ 		if (ISDOT (p[0]) && ISDOT (p[1]) && (ISSLASH (p[2]) || !p[2]))
 diff --git a/src/main.c b/src/main.c
 index 043f604..dc3e924 100644
 --- a/src/main.c
