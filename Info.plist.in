@@ -288,6 +288,57 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>cbz</string>
+				<string>CBZ</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>ZIP archived comic book</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpio</string>
+				<string>CPIO</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>CPIO Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ar</string>
+				<string>AR</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>archive</string>
+			<key>CFBundleTypeName</key>
+			<string>AIX small indexed archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
 				<string>*</string>
 			</array>
 			<key>CFBundleTypeName</key>
