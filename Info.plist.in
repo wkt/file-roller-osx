@@ -363,6 +363,10 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>@AppName@</string>
+	<key>CFBundleDisplayName</key>
+	<string>Archive Manager</string>
+	<key>LSHasLocalizedDisplayName</key>
+	<true/>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
