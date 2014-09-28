@@ -4,7 +4,7 @@ all:$(AppName).app
 	
 
 PREFIX=${HOME}/gtk/inst
-BundleVersionCode=3
+BundleVersionCode=4
 
 file-roller.bundle:file-roller.bundle.in Makefile
 	sed "s|@PREFIX@|$(PREFIX)|g" file-roller.bundle.in >file-roller.bundle
