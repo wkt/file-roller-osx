@@ -23,7 +23,7 @@ $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.pl
 	@touch "$(AppName).app"
 
 file-roller.icns:Makefile
-	cmd=makeicns;\
+	cmd=makeicns; \
 	for f in 32 48 256 ; \
 	do \
 		fg="$(PREFIX)/share/icons/hicolor/$${f}x$${f}/apps/file-roller.png"; \
@@ -51,7 +51,7 @@ do_strip:
 
 copy-icon-themes:
 	@mkdir -p "$(AppName).app/Contents/Resources/share/icons"
-	for ic in gnome hicolor ; do \
+	for ic in Adwaita hicolor ; do \
 		d="$(PREFIX)/share/icons/$$ic" ; \
 		if test -d "$$d"; then \
 			cp -r "$$d/" "$(AppName).app/Contents/Resources/share/icons/$$ic/" ; \
@@ -60,8 +60,10 @@ copy-icon-themes:
 			continue; \
 		fi; \
 	done
-	@rm -rf "$(AppName).app/Contents/Resources/share/icons/gnome/256x256"
-	
+	for d in 256x256 8x8 "*/emotes"; do \
+		test -z "$$d" && continue ; \
+		( cd "$(AppName).app" ;rm -rf Contents/Resources/share/icons/Adwaita/$$d ) ; \
+	done
 
 cp-plist:Info.plist
 	cp -av Info.plist "$(AppName).app/Contents/"

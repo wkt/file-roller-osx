@@ -1,0 +1,36 @@
+diff --git a/gtk/gtksettings.c b/gtk/gtksettings.c
+index 644df01..115893d 100644
+--- a/gtk/gtksettings.c
++++ b/gtk/gtksettings.c
+@@ -1781,7 +1781,7 @@ settings_init_style (GtkSettings *settings)
+       if (g_file_test (css_path,
+                        G_FILE_TEST_IS_REGULAR))
+         gtk_css_provider_load_from_path (css_provider, css_path, NULL);
+-
++	  gtk_css_provider_load_from_data(css_provider,".tooltip { border-width:0; border-radius:0; }",-1,NULL);
+       g_free (css_path);
+     }
+ 
+diff --git a/gtk/gtkwindow.c b/gtk/gtkwindow.c
+index d6d3b4a..1b40b67 100644
+--- a/gtk/gtkwindow.c
++++ b/gtk/gtkwindow.c
+@@ -1640,6 +1640,7 @@ gtk_window_set_property (GObject      *object,
+     {
+     case PROP_TYPE:
+       priv->type = g_value_get_enum (value);
++	  if(priv->type == GTK_WINDOW_POPUP)gtk_window_set_decorated(window,FALSE);
+       break;
+     case PROP_TITLE:
+       gtk_window_set_title (window, g_value_get_string (value));
+@@ -3933,8 +3934,8 @@ gtk_window_enable_csd (GtkWindow *window)
+   g_assert (visual != NULL);
+   gtk_widget_set_visual (widget, visual);
+ 
+-  priv->client_decorated = TRUE;
+-  gtk_style_context_add_class (gtk_widget_get_style_context (widget), GTK_STYLE_CLASS_CSD);
++  priv->client_decorated = FALSE;
++  //gtk_style_context_add_class (gtk_widget_get_style_context (widget), GTK_STYLE_CLASS_CSD);
+ }
+ 
+ static void

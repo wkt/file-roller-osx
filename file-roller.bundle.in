@@ -42,9 +42,9 @@
     ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/immodules/*quartz.so
   </binary>
 
-  <binary>
+  <!--binary>
   	${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/theming-engines/*.so
-  </binary>
+  </binary -->
 
   <!-- And the print backends -->
   <binary>
