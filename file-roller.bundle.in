@@ -56,9 +56,9 @@
     ${prefix}/lib/gdk-pixbuf-2.0/${pkg:gdk-pixbuf-2.0:gdk_pixbuf_binary_version}/loaders/*.so
   </binary>
 
-  <binary>
+  <!--binary>
     ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/
-  </binary>
+  </binary -->
 
   <binary dest="${bundle}/Contents/bin">
     ${project}/bin
@@ -70,7 +70,7 @@
   </data -->
   
   <data>
-    ${prefix:opt}/share/mime
+    ${prefix}/share/mime
   </data>
 
   <!-- copy gsettings things -->

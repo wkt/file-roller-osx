@@ -8,7 +8,9 @@ BundleVersionCode=4
 
 file-roller.bundle:file-roller.bundle.in Makefile
 	sed "s|@PREFIX@|$(PREFIX)|g" file-roller.bundle.in >file-roller.bundle
-	
+
+launcher:launcher.m
+	$(CC) $< -o $@ -fobjc-arc -isysroot `xcode-select -p`/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
 Info.plist:Info.plist.in Makefile
 	sed "s|@AppName@|$(AppName)|g;s|@DATE@|$(shell date '+%Y-%m-%d %H:%M:%S%z')|g;s|@BundleVersionCode@|$(BundleVersionCode)|g" Info.plist.in >Info.plist
@@ -16,7 +18,7 @@ Info.plist:Info.plist.in Makefile
 $(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.plist
 	@mkdir -p  $(PREFIX)/lib/
 	@touch $(PREFIX)/lib/charset.alias
-	gtk-mac-bundler file-roller.bundle
+	~/.local/bin/gtk-mac-bundler file-roller.bundle
 	make do_lproj
 	make copy-icon-themes
 	plutil -convert binary1 "$(AppName).app/Contents/Info.plist"
@@ -74,4 +76,4 @@ dmg:$(AppName).app
 
 
 clean:
-	rm -rf "$(AppName).app" file-roller.bundle Info.plist file-roller.icns
+	rm -rf "$(AppName).app" file-roller.bundle Info.plist file-roller.icns launcher

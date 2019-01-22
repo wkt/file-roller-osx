@@ -1,0 +1,22 @@
+diff --git a/gtk/deprecated/gtkrecentaction.c b/gtk/deprecated/gtkrecentaction.c
+index 3431e3743f..3035b05325 100644
+--- a/gtk/deprecated/gtkrecentaction.c
++++ b/gtk/deprecated/gtkrecentaction.c
+@@ -438,7 +438,7 @@ gtk_recent_action_create_menu_item (GtkAction *action)
+   menuitem = g_object_new (GTK_TYPE_IMAGE_MENU_ITEM, NULL);
+   G_GNUC_END_IGNORE_DEPRECATIONS;
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), menu);
+-  gtk_widget_show (menu);
++  gtk_widget_show_all (menu);
+ 
+   return menuitem;
+ }
+@@ -452,7 +452,7 @@ gtk_recent_action_create_tool_item (GtkAction *action)
+   menu = gtk_recent_action_create_menu (action);
+   toolitem = g_object_new (GTK_TYPE_MENU_TOOL_BUTTON, NULL);
+   gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (toolitem), menu);
+-  gtk_widget_show (menu);
++  gtk_widget_show_all (menu);
+ 
+   return toolitem;
+ }

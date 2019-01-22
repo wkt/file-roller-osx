@@ -1,0 +1,20 @@
+diff --git a/gtk/gtkplacessidebar.c b/gtk/gtkplacessidebar.c
+index 31b968d0f4..f3cdea1dad 100644
+--- a/gtk/gtkplacessidebar.c
++++ b/gtk/gtkplacessidebar.c
+@@ -1128,6 +1128,7 @@ update_places (GtkPlacesSidebar *sidebar)
+       g_object_unref (start_icon);
+     }
+ 
++#ifndef  GDK_WINDOWING_QUARTZ
+   /* Trash */
+   if (!sidebar->local_only && sidebar->show_trash)
+     {
+@@ -1141,6 +1142,7 @@ update_places (GtkPlacesSidebar *sidebar)
+                                  (gpointer *) &sidebar->trash_row);
+       g_object_unref (start_icon);
+     }
++#endif
+ 
+   /* Application-side shortcuts */
+   add_application_shortcuts (sidebar);

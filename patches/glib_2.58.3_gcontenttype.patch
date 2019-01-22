@@ -1,0 +1,22 @@
+diff --git a/gio/Makefile.am b/gio/Makefile.am
+index 05b20cdef..d0ed4b581 100644
+--- a/gio/Makefile.am
++++ b/gio/Makefile.am
+@@ -407,8 +407,8 @@ nodist_portal_sources = \
+ 	$(NULL)
+ 
+ if OS_UNIX
+-if !OS_COCOA
+ contenttype_sources += gcontenttype.c
++if !OS_COCOA
+ appinfo_sources += gdesktopappinfo.c
+ endif
+ endif
+@@ -645,7 +645,6 @@ libgio_objc_2_0_la_CPPFLAGS = $(libgio_2_0_la_CPPFLAGS)
+ libgio_objc_2_0_la_LDFLAGS = $(libgio_2_0_la_LDFLAGS) -Wl,-framework,Foundation -Wl,-framework,AppKit
+ libgio_objc_2_0_la_SOURCES = \
+ 	gnextstepsettingsbackend.c \
+-	gosxcontenttype.c \
+ 	gosxappinfo.c \
+ 	gosxappinfo.h
+ if MAC_OS_X_9

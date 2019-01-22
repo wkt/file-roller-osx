@@ -1,0 +1,177 @@
+diff --git a/gdk/quartz/GdkQuartzView.c b/gdk/quartz/GdkQuartzView.c
+index 7237363f75..e516556749 100644
+--- a/gdk/quartz/GdkQuartzView.c
++++ b/gdk/quartz/GdkQuartzView.c
+@@ -711,4 +711,23 @@
+     [self updateTrackingRect];
+ }
+ 
++- (void)setForDragPromisedFiles:(NSObject*)object
++{
++	if(object)[object retain];
++	if(forDragPromisedFiles)[forDragPromisedFiles release];
++    forDragPromisedFiles = object;
++}
++
++- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination
++{
++	[dropDestination retain];
++    NSMutableArray  *ret = [[NSMutableArray  alloc] initWithCapacity:0];
++    SEL ff=@selector(namesOfPromisedFilesDroppedAtDestination:returnArray:);
++    if(forDragPromisedFiles)
++        [forDragPromisedFiles performSelector:ff
++                                   withObject:dropDestination withObject:ret];
++	[dropDestination release];
++    return ret;
++}
++
+ @end
+diff --git a/gdk/quartz/GdkQuartzView.h b/gdk/quartz/GdkQuartzView.h
+index 732c677ee5..2f05b4fcc4 100644
+--- a/gdk/quartz/GdkQuartzView.h
++++ b/gdk/quartz/GdkQuartzView.h
+@@ -39,11 +39,13 @@
+   BOOL needsInvalidateShadow;
+   NSRange markedRange;
+   NSRange selectedRange;
++  NSObject *forDragPromisedFiles;
+ }
+ 
+ - (void)setGdkWindow: (GdkWindow *)window;
+ - (GdkWindow *)gdkWindow;
+ - (NSTrackingRectTag)trackingRect;
+ - (void)setNeedsInvalidateShadow: (BOOL)invalidate;
++- (void)setForDragPromisedFiles:(NSObject*)object;
+ 
+ @end
+diff --git a/gdk/quartz/gdkdnd-quartz.c b/gdk/quartz/gdkdnd-quartz.c
+index aca4cb1dd8..9ea194ee2b 100644
+--- a/gdk/quartz/gdkdnd-quartz.c
++++ b/gdk/quartz/gdkdnd-quartz.c
+@@ -40,7 +40,7 @@ _gdk_quartz_window_drag_begin (GdkWindow *window,
+                                gint       x_root,
+                                gint       y_root)
+ {
+-  g_assert (_gdk_quartz_drag_source_context == NULL);
++//  g_assert (_gdk_quartz_drag_source_context == NULL);
+ 
+   /* Create fake context */
+   _gdk_quartz_drag_source_context = g_object_new (GDK_TYPE_QUARTZ_DRAG_CONTEXT,
+@@ -52,6 +52,7 @@ _gdk_quartz_window_drag_begin (GdkWindow *window,
+   g_object_ref (window);
+ 
+   _gdk_quartz_drag_source_context->targets = targets;
++    _gdk_quartz_drag_source_context->source_window = window;
+ 
+   gdk_drag_context_set_device (_gdk_quartz_drag_source_context, device);
+ 
+diff --git a/gtk/gtkdnd-quartz.c b/gtk/gtkdnd-quartz.c
+index f9d70e455c..37c28d3555 100644
+--- a/gtk/gtkdnd-quartz.c
++++ b/gtk/gtkdnd-quartz.c
+@@ -136,6 +136,51 @@ struct _GtkDragFindData
+     }
+ }
+ 
++/*
++ *handle fileroller drag to extract
++ */
++- (void )namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination returnArray:(NSMutableArray *)ret
++{
++    guint target_info;
++    GtkSelectionData selection_data;
++    
++    selection_data.selection = GDK_NONE;
++    selection_data.data = NULL;
++    selection_data.length = -1;
++    selection_data.target = gdk_quartz_pasteboard_type_to_atom_libgtk_only (NSURLPboardType);
++    selection_data.display = gdk_display_get_default ();
++	gtk_target_list_find (info->target_list,
++                          selection_data.target,
++                          &target_info);
++	gchar *uri = g_strdup([[NSString stringWithFormat:@"file://%@",[dropDestination path]] UTF8String]);
++    g_object_set_data(info->context,"drag_to_uri",uri);
++    g_signal_emit_by_name (info->widget, "drag-data-get",
++                           info->context,
++                           &selection_data,
++                           target_info,
++                           time);
++	g_free(uri);
++	GList *file_list = g_object_get_data(info->context,"file_list");
++    g_free (selection_data.data);
++    
++    if(ret){
++		GList *l = file_list;
++		while(l){
++			gchar *s = g_strdup((char*)l->data);
++			gchar *pt=strchr(s,'/');
++			if(pt)*(pt+1)=0;
++			NSString *ns=[NSString stringWithUTF8String:s];
++            g_free(s);
++			if(![ret containsObject:ns]){
++				[ret addObject:ns];
++			}
++			l=l->next;
++		}
++	}
++  g_signal_emit_by_name (info->widget, "drag-end",
++			     info->context);
++}
++
+ - (id)initWithInfo:(GtkDragSourceInfo *)anInfo
+ {
+   self = [super init];
+@@ -1081,6 +1126,14 @@ gtk_drag_begin_idle (gpointer arg)
+   if ((nswindow = get_toplevel_nswindow (info->source_widget)) == NULL)
+      return G_SOURCE_REMOVE;
+   
++  id nsview = NULL;
++  if(g_object_get_data(info->source_widget,"dragPromisedFilesOfTypes")){
++     GdkWindow *gdkwindow = gtk_widget_get_window (info->source_widget);
++     nsview = gdk_quartz_window_get_nsview(gdkwindow);
++  }
++  g_object_set_data(info->source_widget,"dragPromisedFilesOfTypes",NULL);
++
++
+   /* Ref the context. It's unreffed when the drag has been aborted */
+   g_object_ref (info->context);
+ 
+@@ -1098,13 +1151,31 @@ gtk_drag_begin_idle (gpointer arg)
+   point.x -= info->hot_x;
+   point.y -= [drag_image size].height - info->hot_y;
+ 
+-  [nswindow dragImage:drag_image
+-                   at:point
+-               offset:NSZeroSize
+-                event:info->nsevent
+-           pasteboard:pasteboard
+-               source:nswindow
+-            slideBack:YES];
++    if(nsview){
++        NSPoint dragPosition;
++        NSRect imageLocation;
++        
++        [nsview setForDragPromisedFiles:owner];
++        
++        dragPosition = [nsview convertPoint:[info->nsevent locationInWindow] fromView:nil];
++        dragPosition.x -= 16;
++        dragPosition.y -= 16;
++        imageLocation.origin = dragPosition;
++        imageLocation.size = NSMakeSize(32,32);
++        [nsview dragPromisedFilesOfTypes:[NSArray arrayWithObject:kPasteboardTypeFileURLPromise]
++                                fromRect:imageLocation
++                                  source:nsview
++                               slideBack:YES
++                                   event:info->nsevent];
++    }else {
++      [nswindow dragImage:drag_image
++                       at:point
++                   offset:NSZeroSize
++                    event:info->nsevent
++               pasteboard:pasteboard
++                   source:nswindow
++                slideBack:YES];
++    }
+ 
+   [info->nsevent release];
+   [drag_image release];

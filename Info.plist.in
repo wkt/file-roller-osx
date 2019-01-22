@@ -378,10 +378,12 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2001-2010 The File roller Team,build by wkt 2014 for OS X</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7</string>
+	<string>10.9</string>
 	<key>CFBundleVersionCode</key>
 	<string>@BundleVersionCode@</string>
 	<key>CFBundleBuildDate</key>
 	<string>@DATE@</string>
+	<key>NSHighResolutionCapable</key>
+        <true/>
 </dict>
 </plist>
