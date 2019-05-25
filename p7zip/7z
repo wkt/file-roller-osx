@@ -1,0 +1,7 @@
+#!/bin/sh
+
+##I don't why it need this script
+##but it works like this
+n=`basename ${0}`
+d=`dirname ${0}`
+"${d}/../p7zip/${n}.real" "$@"

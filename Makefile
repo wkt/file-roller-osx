@@ -11,11 +11,14 @@ file-roller.bundle:file-roller.bundle.in Makefile
 
 launcher:launcher.m
 	$(CC) $< -o $@ -fobjc-arc -isysroot `xcode-select -p`/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+test_launcher:launcher
+	cp -av launcher  $(AppName).app/Contents/MacOS/$(AppName)
+	$(AppName).app/Contents/MacOS/$(AppName)
 
 Info.plist:Info.plist.in Makefile
 	sed "s|@AppName@|$(AppName)|g;s|@DATE@|$(shell date '+%Y-%m-%d %H:%M:%S%z')|g;s|@BundleVersionCode@|$(BundleVersionCode)|g" Info.plist.in >Info.plist
 
-$(AppName).app: file-roller.bundle launcher.sh Makefile file-roller.icns Info.plist
+$(AppName).app: file-roller.bundle launcher Makefile file-roller.icns Info.plist
 	@mkdir -p  $(PREFIX)/lib/
 	@touch $(PREFIX)/lib/charset.alias
 	~/.local/bin/gtk-mac-bundler file-roller.bundle
@@ -62,7 +65,7 @@ copy-icon-themes:
 			continue; \
 		fi; \
 	done
-	for d in 256x256 8x8 "*/emotes"; do \
+	for d in 512x512 8x8 "*/emotes"; do \
 		test -z "$$d" && continue ; \
 		( cd "$(AppName).app" ;rm -rf Contents/Resources/share/icons/Adwaita/$$d ) ; \
 	done
@@ -73,7 +76,6 @@ cp-plist:Info.plist
 
 dmg:$(AppName).app
 	bash -x ~/bin/build_dmg.sh "$(AppName).app"
-
 
 clean:
 	rm -rf "$(AppName).app" file-roller.bundle Info.plist file-roller.icns launcher

@@ -1,7 +1,1 @@
-#!/bin/sh
-
-##I don't why it need this script
-##but it works like this
-
-"${0}.real" "$@"
-
+../p7zip/7z

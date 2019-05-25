@@ -22,7 +22,7 @@
          script will be used.
     -->
     <launcher-script>
-		${project}/launcher.sh
+		${project}/launcher
 	</launcher-script>
     <gtk>gtk+-3.0</gtk>
   </meta>
@@ -60,10 +60,13 @@
     ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/
   </binary -->
 
-  <binary dest="${bundle}/Contents/bin">
-    ${project}/bin
-  </binary>
+  <data dest="${bundle}/Contents/Resources/p7zip">
+    ${project}/p7zip
+  </data>
 
+  <data dest="${bundle}/Contents/Resources/bin">
+    ${project}/bin
+  </data>
 
   <!--data>
     ${prefix}/etc/pango/
@@ -92,7 +95,19 @@
     ${prefix}/share/locale
   </translations>
 
+  <translations  name="gtk30-properties">
+    ${prefix}/share/locale
+  </translations>
+
+  <translations  name="glib20">
+    ${prefix}/share/locale
+  </translations>
+
   <translations  name="file-roller">
+    ${prefix}/share/locale
+  </translations>
+
+  <translations  name="gtk-mac-integration">
     ${prefix}/share/locale
   </translations>
 
@@ -148,13 +163,13 @@
        icon names. To be safe, you should use "all". "none" is useful
        if you want just the index.theme file but no icons, mostly
        needed for the "hicolor" base theme.
-  >
-  <icon-theme icons="all">
-    gnome
+  -->
+  <icon-theme icons="auto">
+    Adwaita
   </icon-theme>
 
   <icon-theme icons="auto">
     hicolor
-  </icon-theme -->
+  </icon-theme>
 
 </app-bundle>

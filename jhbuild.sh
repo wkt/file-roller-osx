@@ -11,7 +11,7 @@ do_clean()
     (
         local d
         cd ~/gtk/source
-        for d in *
+        for d in *-[0-9.]
         do
             test  "$d" = "pkgs"  && continue
             test -z "$d" && continue
